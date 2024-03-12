@@ -4,7 +4,12 @@ import Scoring from './components/Scoring'
 function App() {
  
   return (
-    <Scoring></Scoring>
+    <Scoring 
+      bluescore={0} 
+      redscore={0} 
+      blueteams={[]} 
+      redteams={[]}>
+    </Scoring>
     )
 }
 
