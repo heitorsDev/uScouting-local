@@ -3,9 +3,16 @@ import React, { useState, useEffect } from "react";
 
 
 export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
-  const [redScore, setRedScore] = useState(redscore);
 
-  useEffect(() => {
+  const [isNew, setIsNew] = useState(false)
+
+  if (bluescore==0 || redscore==0 || blueteams==[] || redteams==[]){
+    setIsNew(true)
+  }
+
+    const [redScore, setRedScore]= useState(redscore)
+
+    useEffect(() => {
     setRedScore(redscore);
   }, [redscore]);
 
@@ -16,7 +23,7 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
   }, [bluescore]);
 
   const [redAlliance, setRedAlliance] = useState(redteams);
-  
+
   useEffect(() => {
     setRedAlliance(redteams);
   }, [redteams]);
@@ -29,8 +36,6 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
 
   const [inputBlueTeam, setInputBlueTeam] = useState("");
   const [inputRedTeam, setInputRedTeam] = useState("");
-
-
 
   const handleRemoveRed = (index) => {
     const newArr = [...redAlliance];
@@ -58,7 +63,6 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
     </div>
   ));
 
-
   const handleAddTeamRed = () => {
     if (inputRedTeam !== "" && redAlliance.length <= 2) {
       setRedAlliance([...redAlliance, inputRedTeam]);
@@ -82,10 +86,25 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
     setRedScore(redScore + 10);
   };
 
-
   const submitMatch = () => {
+    const json = {
+      blueAlliance: {
+        teams: blueAlliance,
+        score: blueScore
+      }, 
+      redAlliance: {
+        teams: redAlliance,
+        score: redScore
+      }
+    }
+    const strJson = JSON.stringify(json)
+    if (isNew){
 
-  }
+    } else {
+
+    }
+
+  };
 
   return (
     <div>
@@ -111,7 +130,7 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
       <button onClick={testAddRed}> add red</button>Red score: {redScore} <br />
       <button onClick={testAddBlue}> add Blue</button>Blue score: {blueScore}
       <br />
-      <button onClick={submitMatch} >submit match</button>
+      <button onClick={submitMatch}>submit match</button>
     </div>
   );
 }
