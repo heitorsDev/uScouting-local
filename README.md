@@ -1,2 +1,1 @@
-#uscouting local
-electron and react app for scouting with local storage 
+react app for firs tech challenge scouting using local storage 
