@@ -1,1 +1,1 @@
-react app for firs tech challenge scouting using local storage 
+react app for first tech challenge scouting using local storage 
