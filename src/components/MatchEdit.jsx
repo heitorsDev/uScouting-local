@@ -1,4 +1,4 @@
-export default function Match({ bluescore, redscore, blueteams, redteams }) {
+export default function MatchEdit({ bluescore, redscore, blueteams, redteams }) {
     const listBlueTeams = blueteams.map((team, index) => (
         <div key={index}>
           <div>{team}</div>
