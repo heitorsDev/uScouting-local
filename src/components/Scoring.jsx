@@ -1,41 +1,25 @@
 import React, { useState, useEffect } from "react";
 
-
-
-export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
-
-  const [isNew, setIsNew] = useState(false)
-
-  if (bluescore==0 || redscore==0 || blueteams==[] || redteams==[]){
-    setIsNew(true)
-  }
-
-    const [redScore, setRedScore]= useState(redscore)
-
-    useEffect(() => {
-    setRedScore(redscore);
-  }, [redscore]);
-
-  const [blueScore, setBlueScore] = useState(bluescore);
-
-  useEffect(() => {
-    setBlueScore(bluescore);
-  }, [bluescore]);
-
-  const [redAlliance, setRedAlliance] = useState(redteams);
-
-  useEffect(() => {
-    setRedAlliance(redteams);
-  }, [redteams]);
-
-  const [blueAlliance, setBlueAlliance] = useState(blueteams);
-
-  useEffect(() => {
-    setBlueAlliance(blueteams);
-  }, [blueteams]);
-
+export default function Scoring({ pointer, index, saveFunc }) {
+  const [redScore, setRedScore] = useState(0);
+  const [blueScore, setBlueScore] = useState(0);
+  const [redAlliance, setRedAlliance] = useState([]);
+  const [blueAlliance, setBlueAlliance] = useState([]);
   const [inputBlueTeam, setInputBlueTeam] = useState("");
   const [inputRedTeam, setInputRedTeam] = useState("");
+
+  useEffect(() => {
+    if (index !== null) {
+      const currentStorage = JSON.parse(localStorage.getItem(pointer));
+      if (currentStorage) {
+        const match = currentStorage.matches[index];
+        setRedScore(match.redAlliance.score);
+        setRedAlliance(match.redAlliance.teams);
+        setBlueScore(match.blueAlliance.score);
+        setBlueAlliance(match.blueAlliance.teams);
+      }
+    }
+  }, [index, pointer]);
 
   const handleRemoveRed = (index) => {
     const newArr = [...redAlliance];
@@ -47,6 +31,50 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
     const newArr = [...blueAlliance];
     newArr.splice(index, 1);
     setBlueAlliance(newArr);
+  };
+
+  const handleAddTeamRed = () => {
+    if (inputRedTeam !== "" && redAlliance.length <= 2) {
+      setRedAlliance([...redAlliance, inputRedTeam]);
+      setInputRedTeam("");
+    }
+  };
+
+  const handleAddTeamBlue = () => {
+    if (inputBlueTeam !== "" && blueAlliance.length <= 2) {
+      setBlueAlliance([...blueAlliance, inputBlueTeam]);
+      setInputBlueTeam("");
+    }
+  };
+
+  const testAddBlue = () => {
+    setBlueScore(blueScore + 10);
+  };
+
+  const testAddRed = () => {
+    setRedScore(redScore + 10);
+  };
+
+  const submitMatch = () => {
+    const json = {
+      blueAlliance: {
+        teams: blueAlliance,
+        score: blueScore,
+      },
+      redAlliance: {
+        teams: redAlliance,
+        score: redScore,
+      },
+    };
+    let currentStorage = JSON.parse(localStorage.getItem(pointer));
+    if (!currentStorage) currentStorage = { matches: [] };
+    if (index !== null && index < currentStorage.matches.length) {
+      currentStorage.matches[index] = json;
+    } else {
+      currentStorage.matches.push(json);
+    }
+    localStorage.setItem(pointer, JSON.stringify(currentStorage));
+    saveFunc();
   };
 
   const listBlue = blueAlliance.map((team, index) => (
@@ -63,52 +91,9 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
     </div>
   ));
 
-  const handleAddTeamRed = () => {
-    if (inputRedTeam !== "" && redAlliance.length <= 2) {
-      setRedAlliance([...redAlliance, inputRedTeam]);
-      setInputRedTeam("");
-    }
-  };
-
-  const handleAddTeamBlue = () => {
-    if (inputBlueTeam !== "" && blueAlliance.length <= 2) {
-      setBlueAlliance([...blueAlliance, inputBlueTeam]);
-      setInputBlueTeam("");
-    }
-  };
-
-  // scoring debug NOT DEFINITIVE
-
-  const testAddBlue = () => {
-    setBlueScore(blueScore + 10);
-  };
-  const testAddRed = () => {
-    setRedScore(redScore + 10);
-  };
-
-  const submitMatch = () => {
-    const json = {
-      blueAlliance: {
-        teams: blueAlliance,
-        score: blueScore
-      }, 
-      redAlliance: {
-        teams: redAlliance,
-        score: redScore
-      }
-    }
-    const strJson = JSON.stringify(json)
-    if (isNew){
-
-    } else {
-
-    }
-
-  };
-
   return (
     <div>
-      <h2>blue teams</h2>
+      <h2>Blue teams</h2>
       {listBlue}
       <input
         type="text"
@@ -116,8 +101,8 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
         value={inputBlueTeam}
         onChange={(e) => setInputBlueTeam(e.target.value)}
       />
-      <button onClick={handleAddTeamBlue}>add team</button>
-      <h2>red teams</h2>
+      <button onClick={handleAddTeamBlue}>Add team</button>
+      <h2>Red teams</h2>
       {listRed}
       <input
         type="text"
@@ -125,12 +110,12 @@ export default function Scoring({ bluescore, redscore, blueteams, redteams }) {
         value={inputRedTeam}
         onChange={(e) => setInputRedTeam(e.target.value)}
       />
-      <button onClick={handleAddTeamRed}>add team</button>
-      <h2>scores</h2>
-      <button onClick={testAddRed}> add red</button>Red score: {redScore} <br />
-      <button onClick={testAddBlue}> add Blue</button>Blue score: {blueScore}
+      <button onClick={handleAddTeamRed}>Add team</button>
+      <h2>Scores</h2>
+      <button onClick={testAddRed}>Add Red</button> Red score: {redScore} <br />
+      <button onClick={testAddBlue}>Add Blue</button> Blue score: {blueScore}
       <br />
-      <button onClick={submitMatch}>submit match</button>
+      <button onClick={submitMatch}>Submit Match</button>
     </div>
   );
 }
