@@ -19,27 +19,27 @@ export default function Competitions() {
     setEdit(false);
     setCreatingComp(false);
 
-      let storedValue = localStorage.getItem("competitionPointers");
-      if (storedValue) {
-        setCompetitionPointers((prevPointers) => {
-          const pointers = JSON.parse(storedValue);
-          const list = pointers.map((pointer) => {
-            const currentStored = JSON.parse(localStorage.getItem(pointer));
-            return {
-              competition: currentStored,
-              pointer: pointer,
-            };
-          });
-          setCompetitionList(list);
-          return pointers;
+    let storedValue = localStorage.getItem("competitionPointers");
+    if (storedValue) {
+      setCompetitionPointers((prevPointers) => {
+        const pointers = JSON.parse(storedValue);
+        const list = pointers.map((pointer) => {
+          const currentStored = JSON.parse(localStorage.getItem(pointer));
+          return {
+            competition: currentStored,
+            pointer: pointer,
+          };
         });
-      }
-      setEdit(false);
-      setCreatingComp(false);
-
+        setCompetitionList(list);
+        return pointers;
+      });
+    }
+    setEdit(false);
+    setCreatingComp(false);
   };
 
   const addCompHandle = () => {
+    setCurrentPointer(null);
     setCreatingComp(true);
     setEdit(false);
   };
@@ -64,20 +64,21 @@ export default function Competitions() {
 
   return (
     <div className="competitionsMain">
-      <div className="competitions">
-        {competitionList.map((competition, index) => (
-          <div key={index} className="competition">
-            Name: {competition.competition.name}
-            <button value={competition.pointer} onClick={editCompHandle}>
-              edit
-            </button>
-          </div>
-        ))}
-        <button className="add" onClick={addCompHandle}>
-          Add competition
-        </button>
-      </div>
-      {creatingComp && (
+      {!creatingComp ? (
+        <div className="competitions">
+          {competitionList.map((competition, index) => (
+            <div key={index} className="competition">
+              Name: {competition.competition.name}
+              <button value={competition.pointer} onClick={editCompHandle}>
+                edit
+              </button>
+            </div>
+          ))}
+          <button className="add" onClick={addCompHandle}>
+            Add competition
+          </button>
+        </div>
+      ) : (
         <CompetitionCreateEdit
           pointer={currentPointer}
           saveFunc={handleSaveFunc}
