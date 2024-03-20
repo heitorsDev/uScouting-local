@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "./Competitions.css";
 import CompetitionCreateEdit from "./CompetitionCreateEdit";
-
+import CompetitionViewer from "./CompetitionViewer";
 export default function Competitions() {
   const [competitionPointers, setCompetitionPointers] = useState([]);
   const [competitionList, setCompetitionList] = useState([]);
   const [creatingComp, setCreatingComp] = useState(false);
   const [edit, setEdit] = useState(null);
   const [currentPointer, setCurrentPointer] = useState(null);
+
+  const [viewPointer, setViewPointer] = useState(null);
+  const [viewingComp, setViewingComp] = useState(false);
 
   const editCompHandle = (e) => {
     setCurrentPointer(e.target.value);
@@ -34,6 +37,7 @@ export default function Competitions() {
         return pointers;
       });
     }
+    setViewingComp(false);
     setEdit(false);
     setCreatingComp(false);
   };
@@ -62,15 +66,22 @@ export default function Competitions() {
     }
   }, []);
 
+  const handleViewComp = (e) => {
+    setViewPointer(e.target.value);
+    setViewingComp(true);
+  };
+
   return (
     <div className="competitionsMain">
-      {!creatingComp ? (
+      {!creatingComp && !viewingComp && (
         <div className="competitions">
           {competitionList.map((competition, index) => (
             <div key={index} className="competition">
-              Name: {competition.competition.name}
+              <button value={competition.pointer} onClick={handleViewComp}>
+                {competition.competition.name}
+              </button>
               <button value={competition.pointer} onClick={editCompHandle}>
-                edit
+                edit info
               </button>
             </div>
           ))}
@@ -78,11 +89,15 @@ export default function Competitions() {
             Add competition
           </button>
         </div>
-      ) : (
+      )}
+      {creatingComp && !viewingComp && (
         <CompetitionCreateEdit
           pointer={currentPointer}
           saveFunc={handleSaveFunc}
         />
+      )}
+      {viewingComp && !creatingComp && (
+        <CompetitionViewer saveFunc={handleSaveFunc} pointer={viewPointer} />
       )}
     </div>
   );
