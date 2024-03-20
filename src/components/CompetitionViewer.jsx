@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import "./CompetitionViewer.css";
 import Scoring from "./Scoring";
+import MatchEdit from "./MatchEdit";
 
 const CompetitionViewer = ({ saveFunc, pointer }) => {
   const [competition, setCompetition] = useState(null);
   const [creatingEditingMatch, setCreatingEditingMatch] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(null);
+
+  const [scoreBoard, setScoreBoard] = useState([]);
 
   useEffect(() => {
     const storedValue = localStorage.getItem(pointer);
@@ -14,12 +17,63 @@ const CompetitionViewer = ({ saveFunc, pointer }) => {
     }
   }, [pointer]);
 
+  useEffect(() => {
+    if (competition) {
+      let teams = competition.teams;
+      let jsonTeams = teams.map((team) => ({ team: team, score: 0 }));
+
+      competition.matches.forEach((match) => {
+        if (match.blueAlliance.score > match.redAlliance.score) {
+          match.blueAlliance.teams.forEach((team) => {
+            let index = jsonTeams.findIndex((item) => item.team === team);
+            if (index !== -1) {
+              jsonTeams[index].score += 1;
+            }
+
+            console.log(jsonTeams);
+          });
+        } else if (match.blueAlliance.score < match.redAlliance.score) {
+          match.redAlliance.teams.forEach((team) => {
+            let index = jsonTeams.findIndex((item) => item.team === team);
+            if (index !== -1) {
+              jsonTeams[index].score += 1;
+            }
+
+            console.log(jsonTeams);
+          });
+        } else {
+          match.blueAlliance.teams.forEach((team) => {
+            let index = jsonTeams.findIndex((item) => item.team === team);
+            if (index !== -1) {
+              jsonTeams[index].score += 1;
+            }
+
+            console.log(jsonTeams);
+          });
+          match.redAlliance.teams.forEach((team) => {
+            let index = jsonTeams.findIndex((item) => item.team === team);
+            if (index !== -1) {
+              jsonTeams[index].score += 1;
+            }
+          });
+          console.log(jsonTeams);
+        }
+      });
+      jsonTeams.sort((a, b) => b.score - a.score);
+      setScoreBoard(jsonTeams);
+    }
+  }, [competition]);
+
   const handleCreateEditButton = (index) => {
     setCurrentIndex(index);
     setCreatingEditingMatch(true);
   };
 
   const handleExitEdit = () => {
+    const storedValue = localStorage.getItem(pointer);
+    if (storedValue) {
+      setCompetition(JSON.parse(storedValue));
+    }
     setCurrentIndex(null);
     setCreatingEditingMatch(false);
   };
@@ -29,9 +83,12 @@ const CompetitionViewer = ({ saveFunc, pointer }) => {
       {!creatingEditingMatch ? (
         <>
           <h2>{competition && competition.name}</h2>
-          <ul>
-            {competition &&
-              competition.teams.map((team) => <li key={team}>{team}</li>)}
+          <ul id="scoreBoard">
+            {scoreBoard.map((team, index) => (
+              <li key={team.team}>
+                <b>{index+1}</b> {team.team}
+              </li>
+            ))}
           </ul>
           <div id="matches">
             {competition &&
@@ -40,7 +97,7 @@ const CompetitionViewer = ({ saveFunc, pointer }) => {
                   key={index}
                   onClick={() => handleCreateEditButton(index)}
                 >
-                  Match {index + 1}
+                  <MatchEdit index={index} pointer={pointer}></MatchEdit>
                 </button>
               ))}
             <button onClick={() => handleCreateEditButton(null)}>

@@ -7,7 +7,7 @@ export default function Scoring({ pointer, index, saveFunc }) {
   const [blueAlliance, setBlueAlliance] = useState([]);
   const [inputBlueTeam, setInputBlueTeam] = useState("");
   const [inputRedTeam, setInputRedTeam] = useState("");
-
+  let currentStorage = JSON.parse(localStorage.getItem(pointer));
   useEffect(() => {
     if (index !== null) {
       const currentStorage = JSON.parse(localStorage.getItem(pointer));
@@ -34,25 +34,37 @@ export default function Scoring({ pointer, index, saveFunc }) {
   };
 
   const handleAddTeamRed = () => {
-    if (inputRedTeam !== "" && redAlliance.length <= 2) {
+    if (
+      inputRedTeam !== "" &&
+      redAlliance.length < 3 &&
+      currentStorage.teams.includes(inputRedTeam)
+    ) {
       setRedAlliance([...redAlliance, inputRedTeam]);
       setInputRedTeam("");
     }
   };
 
   const handleAddTeamBlue = () => {
-    if (inputBlueTeam !== "" && blueAlliance.length <= 2) {
+    if (
+      inputBlueTeam !== "" &&
+      blueAlliance.length <= 3 &&
+      currentStorage.teams.includes(inputBlueTeam)
+    ) {
       setBlueAlliance([...blueAlliance, inputBlueTeam]);
       setInputBlueTeam("");
     }
   };
 
-  const testAddBlue = () => {
-    setBlueScore(blueScore + 10);
+  const testAddBlue = (e) => {
+    if (!(redScore + parseInt(e.target.getAttribute("amm")) < 0)) {
+      setBlueScore(blueScore + parseInt(e.target.getAttribute("amm")));
+    }
   };
 
-  const testAddRed = () => {
-    setRedScore(redScore + 10);
+  const testAddRed = (e) => {
+    if (!(redScore + parseInt(e.target.getAttribute("amm")) < 0)) {
+      setRedScore(redScore + parseInt(e.target.getAttribute("amm")));
+    }
   };
 
   const submitMatch = () => {
@@ -66,7 +78,7 @@ export default function Scoring({ pointer, index, saveFunc }) {
         score: redScore,
       },
     };
-    let currentStorage = JSON.parse(localStorage.getItem(pointer));
+    currentStorage = JSON.parse(localStorage.getItem(pointer));
     if (!currentStorage) currentStorage = { matches: [] };
     if (index !== null && index < currentStorage.matches.length) {
       currentStorage.matches[index] = json;
@@ -112,9 +124,23 @@ export default function Scoring({ pointer, index, saveFunc }) {
       />
       <button onClick={handleAddTeamRed}>Add team</button>
       <h2>Scores</h2>
-      <button onClick={testAddRed}>Add Red</button> Red score: {redScore} <br />
-      <button onClick={testAddBlue}>Add Blue</button> Blue score: {blueScore}
+      <h3>Blue</h3>
+      <button amm={10} onClick={testAddBlue}>
+        +10
+      </button>
+      <button amm={-10} onClick={testAddBlue}>
+        -10
+      </button>{" "}
+      Blue score: {blueScore}
       <br />
+      <h3>Red</h3>
+      <button amm={10} onClick={testAddRed}>
+        +10
+      </button>
+      <button amm={-10} onClick={testAddRed}>
+        -10
+      </button>{" "}
+      Red score: {redScore} <br />
       <button onClick={submitMatch}>Submit Match</button>
     </div>
   );
